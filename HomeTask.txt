@@ -1,0 +1,47 @@
+*** Settings ***
+Resource          common.txt
+Library           String
+Library           Selenium2Library
+Library           UIUserLib.py
+Library           UserLib.py
+Library           APIUserLib.py
+
+*** Test Cases ***
+TC1
+    Create Test User
+    UserLib.Login    ${LOGIN_URL}    ${BROWSER}    ${UserName}    ${UserPassword}
+    ${message}    UserLib.Verify If The User Logged
+    Delete Test Data
+
+TC2
+    Create Test User
+    APIUserLib.Delete User    ${HOST}    ${PORT}    ${ADMIN_USER}    ${ADMIN_PASSWORD}    ${UserId}
+    UserLib.Login    ${LOGIN_URL}    ${BROWSER}    InvalidUserName    InvalidPassword
+    ${error}    Run Keyword And Expect Error    User is not logged    UserLib.Verify If The User Logged
+    UserLib.Close All Browsers
+
+TC3
+    [Setup]    Create Test User
+    [Template]    Check Results Template
+    ${UserName}    IncorrectPassword
+    IncorrectUserName    ${UserPassword}
+    [Teardown]    Delete Test Data
+
+*** Keywords ***
+Create Test User
+    ${UserName}    Generate Random String    6    [LETTERS]
+    Set Suite Variable    ${UserName}
+    ${UserPassword}    Generate Random String    20    [LETTERS][NUMBERS]
+    Set Suite Variable    ${UserPassword}
+    ${UserId}    APIUserLib.Create User    ${HOST}    ${PORT}    ${ADMIN_USER}    ${ADMIN_PASSWORD}    ${UserName}
+    ...    ${UserPassword}    ${UserName}@clarabridge.com    ${UserName}FirstName    ${UserName}LastName    0    enabled=true
+    Set Suite Variable    ${UserId}
+
+Check Results Template
+    [Arguments]    ${userName}    ${password}
+    UserLib.Login    ${LOGIN_URL}    ${BROWSER}    ${userName}    ${password}
+    ${errorMessage}    UserLib.Verify If The Message Present
+
+Delete Test Data
+    UserLib.Close All Browsers
+    APIUserLib.Delete User    ${HOST}    ${PORT}    ${ADMIN_USER}    ${ADMIN_PASSWORD}    ${UserId}

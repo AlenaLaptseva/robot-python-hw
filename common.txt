@@ -1,0 +1,9 @@
+*** Variables ***
+${BROWSER}        firefox
+${PROTOCOL}       http://
+${HOST}           blackbox28.clarabridge.net
+${PORT}           80
+${LOGIN_URL}      ${PROTOCOL}${HOST}:${PORT}/cmp/login
+${ADMIN_USER}     admin
+${ADMIN_PASSWORD}    admin
+${LOGIN_DNS}      http://blackbox28.clarabridge.net/cmp/login
